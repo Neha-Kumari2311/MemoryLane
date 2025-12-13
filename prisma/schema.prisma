@@ -1,45 +1,45 @@
-datasource db {
-  provider = "postgresql"
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
   id        Int       @id @default(autoincrement())
   name      String
   email     String    @unique
-  password  String    // store hashed password
+  password  String
   createdAt DateTime  @default(now())
   capsules  Capsule[]
 }
 
 model Capsule {
-  id         Int        @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   title      String
   unlockDate DateTime
-  creator    User       @relation(fields: [creatorId], references: [id])
   creatorId  Int
+  creator    User        @relation(fields: [creatorId], references: [id])
   memories   Memory[]
   recipients Recipient[]
 }
 
 model Memory {
-  id         Int      @id @default(autoincrement())
-  type       String   // "text", "image", "video", "audio"
-  contentUrl String   // URL or path to file
+  id         Int     @id @default(autoincrement())
+  type       String
+  contentUrl String
   caption    String?
-  capsule    Capsule  @relation(fields: [capsuleId], references: [id])
   capsuleId  Int
+  capsule    Capsule @relation(fields: [capsuleId], references: [id])
 }
 
 model Recipient {
-  id         Int      @id @default(autoincrement())
-  email      String
-  capsule    Capsule  @relation(fields: [capsuleId], references: [id])
-  capsuleId  Int
-  notified   Boolean  @default(false)
-  token      String   @default(uuid()) // unique link for recipient
-
+  id        Int     @id @default(autoincrement())
+  email     String
+  capsuleId Int
+  notified  Boolean @default(false)
+  token     String  @default(uuid())
+  capsule   Capsule @relation(fields: [capsuleId], references: [id])
 }
