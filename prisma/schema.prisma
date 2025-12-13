@@ -40,4 +40,6 @@ model Recipient {
   capsule    Capsule  @relation(fields: [capsuleId], references: [id])
   capsuleId  Int
   notified   Boolean  @default(false)
+  token      String   @default(uuid()) // unique link for recipient
+
 }
