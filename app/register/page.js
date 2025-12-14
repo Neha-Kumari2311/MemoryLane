@@ -44,11 +44,11 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg">
-      <div className="relative flex h-full w-full max-w-[480px] flex-col overflow-hidden sm:my-4 sm:rounded-md sm:shadow-2xl sm:border sm:border-border-warm bg-cream-bg">
+      <div className="relative flex h-full w-full max-w-120 flex-col overflow-hidden sm:my-4 sm:rounded-md sm:shadow-2xl sm:border sm:border-border-warm bg-cream-bg">
 
         {/* Hero Section */}
         <div className="px-6 pt-4 pb-6 flex flex-col items-center text-center relative z-10">
-          <div className="mb-6 size-16 rounded-2xl bg-gradient-to-br from-warm-pink to-coral-red flex items-center justify-center shadow-lg shadow-coral-red/20">
+          <div className="mb-6 size-16 rounded-2xl bg-linear-to-br from-warm-pink to-coral-red flex items-center justify-center shadow-lg shadow-coral-red/20">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -61,7 +61,7 @@ const handleSubmit = async (e) => {
           <h1 className="text-2xl font-bold leading-tight tracking-tight text-charcoal mb-2">
             Create your Time Capsule
           </h1>
-          <p className="text-charcoal/70 text-sm leading-normal max-w-[280px]">
+          <p className="text-charcoal/70 text-sm leading-normal max-w-70">
             Join MemoryLane to preserve your most precious moments for the future.
           </p>
         </div>
@@ -71,7 +71,7 @@ const handleSubmit = async (e) => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="fullname" className="text-sm font-medium text-charcoal/100">
+              <label htmlFor="fullname" className="text-sm font-medium text-charcoal">
                 Full Name
               </label>
               <div className="relative">
@@ -102,7 +102,7 @@ const handleSubmit = async (e) => {
 
             {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-charcoal/100">
+              <label htmlFor="email" className="text-sm font-medium text-charcoal">
                 Email Address
               </label>
               <div className="relative">
@@ -133,7 +133,7 @@ const handleSubmit = async (e) => {
 
             {/* Password */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-charcoal/100">
+              <label htmlFor="password" className="text-sm font-medium text-charcoal">
                 Password
               </label>
               <div className="relative group">
@@ -185,7 +185,7 @@ const handleSubmit = async (e) => {
                 <div className="h-1 flex-1 rounded-full bg-border-warm"></div>
                 <div className="h-1 flex-1 rounded-full bg-border-warm"></div>
               </div>
-              <p className="text-xs text-charcoal/100 mt-0.5">Medium strength</p>
+              <p className="text-xs text-charcoal mt-0.5">Medium strength</p>
             </div>
 
             {/* Submit Button */}
