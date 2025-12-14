@@ -14,6 +14,7 @@ model User {
   password  String
   createdAt DateTime  @default(now())
   capsules  Capsule[]
+  collaborations Collaborator[]
 }
 
 model Capsule {
@@ -22,10 +23,23 @@ model Capsule {
   unlockDate DateTime
   unlocked   Boolean    @default(false)
   letter     String?
+  theme      String?     // e.g., "Childhood", "Family History", "College Years"
   creatorId  Int
   creator    User        @relation(fields: [creatorId], references: [id])
   memories   Memory[]
   recipients Recipient[]
+  collaborators Collaborator[]
+}
+
+model Collaborator {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  capsuleId Int
+  user      User    @relation(fields: [userId], references: [id])
+  capsule   Capsule @relation(fields: [capsuleId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, capsuleId])
 }
 
 model Memory {
@@ -34,7 +48,8 @@ model Memory {
   contentUrl String?
   caption    String?
   capsuleId  Int
-  capsule    Capsule @relation(fields: [capsuleId], references: [id])
+  addedById  Int?    // Track who added this memory (for collaboration)
+  capsule    Capsule @relation(fields: [capsuleId], references: [id], onDelete: Cascade)
 }
 
 model Recipient {

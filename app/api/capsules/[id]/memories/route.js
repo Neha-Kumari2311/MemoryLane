@@ -18,22 +18,30 @@ export async function POST(req, { params }) {
     // In Next.js 15+, params is a Promise and must be awaited
     const resolvedParams = await params;
 
-    // Verify capsule exists and user owns it
+    // Verify capsule exists and user is creator or collaborator
     const capsule = await prisma.capsule.findUnique({
       where: { id: parseInt(resolvedParams.id) },
+      include: {
+        collaborators: true,
+      },
     });
 
     if (!capsule) {
       return NextResponse.json({ error: "Capsule not found" }, { status: 404 });
     }
 
-    if (capsule.creatorId !== user.id) {
+    // Check if user is creator or collaborator
+    const isCreator = capsule.creatorId === user.id;
+    const isCollaborator = capsule.collaborators.some(c => c.userId === user.id);
+    
+    if (!isCreator && !isCollaborator) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const memoryData = {
       type,
       capsuleId: parseInt(resolvedParams.id),
+      addedById: user.id, // Track who added this memory
     };
 
     // Only include contentUrl if it has a value

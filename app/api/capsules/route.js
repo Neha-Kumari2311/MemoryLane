@@ -6,9 +6,29 @@ import { sendEmail, isEmailConfigured } from "@/lib/email";
 export async function GET() {
   try {
     const user = await requireAuth();
+    // Get capsules where user is creator or collaborator
     const capsules = await prisma.capsule.findMany({
-      where: { creatorId: user.id },
-      include: { memories: true, recipients: true },
+      where: {
+        OR: [
+          { creatorId: user.id },
+          { collaborators: { some: { userId: user.id } } }
+        ]
+      },
+      include: { 
+        memories: true, 
+        recipients: true,
+        collaborators: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              }
+            }
+          }
+        }
+      },
       orderBy: { unlockDate: "desc" },
     });
     
@@ -32,7 +52,7 @@ export async function GET() {
 export async function POST(req) {
   try {
     const user = await requireAuth();
-    const { title, unlockDate, letter, recipients, memories } = await req.json();
+    const { title, unlockDate, letter, theme, recipients, memories } = await req.json();
 
     if (!title || !unlockDate) {
       return NextResponse.json(
@@ -41,18 +61,20 @@ export async function POST(req) {
       );
     }
 
-    // Create capsule with letter
+    // Create capsule with letter and theme
     const capsule = await prisma.capsule.create({
       data: {
         title,
         unlockDate: new Date(unlockDate),
         letter: letter || null,
+        theme: theme || null,
         creatorId: user.id,
         memories: memories && memories.length > 0 ? {
           create: memories.map((m) => ({
             type: m.type,
             contentUrl: m.contentUrl,
             caption: m.caption || null,
+            addedById: user.id,
           })),
         } : undefined,
         recipients: recipients && recipients.length > 0 ? {

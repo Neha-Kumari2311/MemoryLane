@@ -8,8 +8,10 @@ export default function CapsuleDetailPage() {
   const router = useRouter();
   const [capsule, setCapsule] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [newMemory, setNewMemory] = useState({ type: 'text', contentUrl: '', caption: '' });
   const [newRecipient, setNewRecipient] = useState('');
+  const [newCollaborator, setNewCollaborator] = useState('');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -19,6 +21,7 @@ export default function CapsuleDetailPage() {
         const data = await res.json();
         if (res.ok) {
           setCapsule(data.capsule);
+          setCurrentUserId(data.currentUserId);
         }
       } catch (err) {
         console.error("Failed to load capsule", err);
@@ -128,7 +131,41 @@ export default function CapsuleDetailPage() {
       alert("Recipient added!");
       location.reload();
     } else {
-      alert("Failed to add recipient");
+      const data = await res.json();
+      alert(data.error || "Failed to add recipient");
+    }
+  };
+
+  const handleAddCollaborator = async () => {
+    const res = await fetch(`/api/capsules/${id}/collaborators`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: newCollaborator }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Collaborator added!");
+      location.reload();
+    } else {
+      alert(data.error || "Failed to add collaborator");
+    }
+  };
+
+  const handleRemoveCollaborator = async (userId) => {
+    const res = await fetch(`/api/capsules/${id}/collaborators`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (res.ok) {
+      alert("Collaborator removed!");
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.error || "Failed to remove collaborator");
     }
   };
 
@@ -410,6 +447,64 @@ export default function CapsuleDetailPage() {
             </button>
           </div>
         </section>
+
+        {/* Collaboration Management */}
+        {capsule.creatorId === currentUserId && (
+          <section>
+            <h2 className="text-base font-bold mb-4">Collaborators</h2>
+            
+            {capsule.collaborators && capsule.collaborators.length === 0 ? (
+              <div className="text-center py-8 text-gray-400 text-sm mb-4">
+                No collaborators yet. Add one below to allow others to contribute memories!
+              </div>
+            ) : (
+              <div className="space-y-3 mb-6">
+                {capsule.collaborators && capsule.collaborators.map((collaborator) => (
+                  <div
+                    key={collaborator.id}
+                    className="bg-[#252b47] rounded-xl p-4 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-medium text-white text-sm">{collaborator.user.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{collaborator.user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveCollaborator(collaborator.userId)}
+                      className="text-red-400 hover:text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add Collaborator */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold">Add a Collaborator</h3>
+              <p className="text-xs text-gray-500">
+                Collaborators can add memories to this capsule. They must have an account.
+              </p>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Email</label>
+                <input
+                  type="email"
+                  value={newCollaborator}
+                  onChange={(e) => setNewCollaborator(e.target.value)}
+                  className="w-full rounded-xl border border-gray-600 bg-[#252b47] px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF6F61]"
+                  placeholder="collaborator@example.com"
+                />
+              </div>
+              
+              <button
+                onClick={handleAddCollaborator}
+                className="w-full rounded-xl bg-[#FF6F61] px-4 py-3.5 text-white text-sm font-semibold shadow-lg hover:bg-[#ff5a4d] transition-all active:scale-98"
+              >
+                Add Collaborator
+              </button>
+            </div>
+          </section>
+        )}
       </div>
 
       {/* Bottom Nav */}

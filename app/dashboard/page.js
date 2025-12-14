@@ -34,6 +34,18 @@ export default function DashboardPage() {
   const now = new Date()
   const upcoming = capsules.filter((c) => new Date(c.unlockDate) > now)
   const unlocked = capsules.filter((c) => new Date(c.unlockDate) <= now)
+  
+  // Group capsules by theme
+  const themes = [...new Set(capsules.map(c => c.theme).filter(Boolean))]
+  const [selectedTheme, setSelectedTheme] = useState(null)
+  
+  // Filter capsules by theme if selected
+  const filteredUpcoming = selectedTheme 
+    ? upcoming.filter(c => c.theme === selectedTheme)
+    : upcoming
+  const filteredUnlocked = selectedTheme
+    ? unlocked.filter(c => c.theme === selectedTheme)
+    : unlocked
 
   const getTimeRemaining = (unlockDate) => {
     // Calculate the difference between unlock date/time and current time
@@ -100,7 +112,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen w-full bg-cream-bg text-[#3E3E3E] font-sans " style={{ fontFamily: "sans-serif" }}>
       {/* Header */}
-      <header className=" border-b sticky top-0 z-50">
+      <header className="border-b bg-white">
         <div className="flex items-center justify-center px-4 py-3 relative">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-500">⏳</div>
@@ -142,6 +154,37 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Theme Filter */}
+      {themes.length > 0 && (
+        <div className="px-4 mb-4">
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <button
+              onClick={() => setSelectedTheme(null)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTheme === null
+                  ? 'bg-[#FF6F61] text-white'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              All Themes
+            </button>
+            {themes.map((theme) => (
+              <button
+                key={theme}
+                onClick={() => setSelectedTheme(theme)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                  selectedTheme === theme
+                    ? 'bg-[#FF6F61] text-white'
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {theme}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Ready to View */}
       <section className="mb-6">
         <div className="flex justify-between items-center px-4 mb-3">
@@ -149,7 +192,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 scrollbar-thin">
-          {unlocked.map((capsule) => {
+          {filteredUnlocked.map((capsule) => {
             const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
             return (
               <div
@@ -173,14 +216,21 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="p-5">
-                  <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-sm text-gray-900 line-clamp-1 flex-1">{capsule.title}</h4>
+                    {capsule.theme && (
+                      <span className="px-2 py-0.5 bg-[#FF6F61]/10 text-[#FF6F61] text-xs font-medium rounded-full whitespace-nowrap">
+                        {capsule.theme}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400">Unlocked {getUnlockedTimeAgo(capsule.unlockDate)}</p>
                 </div>
               </div>
             );
           })}
 
-          {unlocked.length === 0 && <p className="text-sm text-gray-400 px-4">No unlocked capsules yet.</p>}
+          {filteredUnlocked.length === 0 && <p className="text-sm text-gray-400 px-4">No unlocked capsules{selectedTheme ? ` in "${selectedTheme}" theme` : ''} yet.</p>}
         </div>
       </section>
 
@@ -191,7 +241,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 scrollbar-thin">
-          {upcoming.map((capsule) => {
+          {filteredUpcoming.map((capsule) => {
             const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
             return (
               <div
@@ -215,28 +265,35 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="p-5">
-                  <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-sm text-gray-900 line-clamp-1 flex-1">{capsule.title}</h4>
+                    {capsule.theme && (
+                      <span className="px-2 py-0.5 bg-[#FF6F61]/10 text-[#FF6F61] text-xs font-medium rounded-full whitespace-nowrap">
+                        {capsule.theme}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400">Unlocks in {getTimeRemaining(capsule.unlockDate)}</p>
                 </div>
               </div>
             );
           })}
 
-          {upcoming.length === 0 && <p className="text-sm text-gray-400 px-4">No upcoming capsules.</p>}
+          {filteredUpcoming.length === 0 && <p className="text-sm text-gray-400 px-4">No upcoming capsules{selectedTheme ? ` in "${selectedTheme}" theme` : ''}.</p>}
         </div>
       </section>
 
       {/* Floating Action Button */}
       <button
-        onClick={() => router.push("/capsules/new")}
-        className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-[#FF6F61] text-white text-3xl shadow-lg active:scale-95 transition-transform flex items-center justify-center"
-        style={{ boxShadow: "0 4px 12px rgba(255, 111, 97, 0.4)" }}
-      >
-        +
-      </button>
+  onClick={() => router.push("/capsules/new")}
+  className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-[#FF6F61] text-white text-3xl shadow-lg active:scale-95 transition-transform flex items-center justify-center z-50"
+  style={{ boxShadow: "0 4px 12px rgba(255, 111, 97, 0.4)" }}
+>
+  +
+</button>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 flex justify-around items-center ">
+      <nav className="h-16 flex justify-around items-center bg-white border-t border-gray-100">
         <button className="flex flex-col items-center gap-1 text-[#FF6F61]">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />

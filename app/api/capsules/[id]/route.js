@@ -21,19 +21,39 @@ export async function GET(req, { params }) {
 
     const capsule = await prisma.capsule.findUnique({
       where: { id: parsedId },
-      include: { memories: true, recipients: true },
+      include: { 
+        memories: true, 
+        recipients: true,
+        collaborators: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              }
+            }
+          }
+        }
+      },
     });
 
     if (!capsule) {
       return NextResponse.json({ error: "Capsule not found" }, { status: 404 });
     }
 
-    // Only creator can view capsule details
-    if (capsule.creatorId !== user.id) {
+    // Check if user is creator or collaborator
+    const isCreator = capsule.creatorId === user.id;
+    const isCollaborator = capsule.collaborators.some(c => c.userId === user.id);
+    
+    if (!isCreator && !isCollaborator) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    return NextResponse.json({ capsule });
+    return NextResponse.json({ 
+      capsule,
+      currentUserId: user.id // Include current user ID for client-side checks
+    });
   } catch (error) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -88,6 +108,11 @@ export async function DELETE(req, { params }) {
         where: { capsuleId: parsedId },
       });
     }
+
+    // Delete collaborators
+    await prisma.collaborator.deleteMany({
+      where: { capsuleId: parsedId },
+    });
 
     // Now delete the capsule
     await prisma.capsule.delete({

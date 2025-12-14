@@ -10,6 +10,7 @@ export default function NewCapsulePage() {
   const [letter, setLetter] = useState("");
   const [unlockDate, setUnlockDate] = useState("");
   const [unlockTime, setUnlockTime] = useState("00:00");
+  const [theme, setTheme] = useState("");
   const [recipients, setRecipients] = useState([]);
   const [newRecipient, setNewRecipient] = useState("");
   const [memories, setMemories] = useState([]);
@@ -44,6 +45,7 @@ export default function NewCapsulePage() {
           title, 
           unlockDate: unlockDateTime, 
           letter: letter || null,
+          theme: theme || null,
           recipients,
           memories: memories.length > 0 ? memories : undefined,
         }),
@@ -237,6 +239,33 @@ export default function NewCapsulePage() {
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 This capsule will unlock at the specified date and time.
+              </p>
+            </div>
+
+            {/* Theme Selection */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Theme (Optional)
+              </label>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 p-3 text-sm text-charcoal focus:border-coral-red focus:outline-none focus:ring-1 focus:ring-coral-red bg-gray-50"
+              >
+                <option value="">No Theme</option>
+                <option value="Childhood">Childhood</option>
+                <option value="Family History">Family History</option>
+                <option value="College Years">College Years</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Graduation">Graduation</option>
+                <option value="Travel">Travel</option>
+                <option value="Friendship">Friendship</option>
+                <option value="Milestones">Milestones</option>
+                <option value="Holidays">Holidays</option>
+                <option value="Other">Other</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-2">
+                Group your capsules by theme for better organization.
               </p>
             </div>
           </div>
