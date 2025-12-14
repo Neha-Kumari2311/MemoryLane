@@ -1,9 +1,10 @@
 "use client"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation";
 import Link from "next/link"
 
 export default function RegisterPage() {
+     const router = useRouter();
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     fullname: "",
@@ -26,7 +27,7 @@ const handleSubmit = async (e) => {
 
   if (res.ok) {
     alert("Registration successful!");
-    // router.push("/login");
+    router.push("/login");
   } else {
     alert(data.error || "Something went wrong.");
   }
@@ -43,20 +44,10 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg">
-      <div className="relative flex h-full w-full max-w-[480px] flex-col overflow-hidden sm:my-4 sm:rounded-xl sm:shadow-2xl sm:border sm:border-border-warm bg-cream-bg">
-        {/* Header */}
-        <div className="flex items-center p-4 justify-between bg-transparent z-10">
-          <button className="flex size-10 items-center justify-center rounded-full hover:bg-charcoal/5 transition-colors">
-            <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="flex-1"></div>
-          <button className="text-sm font-medium text-charcoal/60 hover:text-coral-red transition-colors">Help</button>
-        </div>
+      <div className="relative flex h-full w-full max-w-[480px] flex-col overflow-hidden sm:my-4 sm:rounded-md sm:shadow-2xl sm:border sm:border-border-warm bg-cream-bg">
 
         {/* Hero Section */}
-        <div className="px-6 pt-2 pb-6 flex flex-col items-center text-center relative z-10">
+        <div className="px-6 pt-4 pb-6 flex flex-col items-center text-center relative z-10">
           <div className="mb-6 size-16 rounded-2xl bg-gradient-to-br from-warm-pink to-coral-red flex items-center justify-center shadow-lg shadow-coral-red/20">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
