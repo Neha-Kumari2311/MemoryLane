@@ -16,13 +16,6 @@ export default function DashboardPage() {
         const data = await res.json()
 
         if (res.ok) {
-          console.log('Fetched capsules:', data.capsules);
-          data.capsules.forEach(capsule => {
-            console.log(`Capsule "${capsule.title}":`, {
-              memories: capsule.memories,
-              imageMemories: capsule.memories?.filter(m => m.type === 'image' || m.type === 'photo')
-            });
-          });
           setCapsules(data.capsules)
           setUserName(data.user?.name || data.userName || "Friend")
         } else if (res.status === 401) {
@@ -43,6 +36,8 @@ export default function DashboardPage() {
   const unlocked = capsules.filter((c) => new Date(c.unlockDate) <= now)
 
   const getTimeRemaining = (unlockDate) => {
+    // Calculate the difference between unlock date/time and current time
+    // Both dates are in the user's local timezone, so the calculation is accurate
     const diff = new Date(unlockDate) - now
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const months = Math.floor(days / 30)
@@ -55,8 +50,22 @@ export default function DashboardPage() {
       return `${months} Month${months > 1 ? "s" : ""}`
     } else if (days > 0) {
       return `${days} Day${days > 1 ? "s" : ""}`
+    } else {
+      // If it's today, show hours until the exact unlock time
+      // Example: If unlock is at 2:30 PM and it's 10:30 AM, shows "4 Hours"
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      if (hours > 0) {
+        return `${hours} Hour${hours > 1 ? "s" : ""}`
+      } else {
+        // If less than an hour, show minutes until unlock
+        const minutes = Math.floor(diff / (1000 * 60))
+        if (minutes > 0) {
+          return `${minutes} Minute${minutes > 1 ? "s" : ""}`
+        } else {
+          return "Very soon"
+        }
+      }
     }
-    return "Today"
   }
 
   const getUnlockedTimeAgo = (unlockDate) => {
@@ -89,7 +98,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-cream-bg text-[#3E3E3E] font-sans pb-20" style={{ fontFamily: "sans-serif" }}>
+    <div className="min-h-screen w-full bg-cream-bg text-[#3E3E3E] font-sans px-5" style={{ fontFamily: "sans-serif" }}>
       {/* Header */}
       <header className=" border-b sticky top-0 z-50">
         <div className="flex items-center justify-center px-4 py-3 relative">
@@ -142,7 +151,6 @@ export default function DashboardPage() {
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 scrollbar-thin">
           {unlocked.map((capsule) => {
             const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
-            console.log('Capsule:', capsule.title, 'Memories:', capsule.memories, 'First Image:', firstImage);
             return (
               <div
                 key={capsule.id}
@@ -157,12 +165,8 @@ export default function DashboardPage() {
                       className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
-                        console.error('Image failed to load:', firstImage.contentUrl, e);
                         e.target.style.display = 'none';
                         e.target.parentElement.classList.add('bg-linear-to-br', 'from-pink-200', 'to-red-200');
-                      }}
-                      onLoad={() => {
-                        console.log('Image loaded successfully:', firstImage.contentUrl);
                       }}
                     />
                   )}
@@ -181,74 +185,44 @@ export default function DashboardPage() {
       </section>
 
       {/* Sealed Memories */}
-      <section className="px-4">
-        <h3 className="text-base font-semibold text-gray-900 mb-3">Sealed Memories</h3>
+      <section className="mb-6">
+        <div className="flex justify-between items-center px-4 mb-3">
+          <h3 className="text-base font-semibold text-gray-900">Sealed Memories</h3>
+        </div>
 
-        <div className="space-y-3">
+        <div className="flex gap-3 overflow-x-auto px-5 pb-2 scrollbar-thin">
           {upcoming.map((capsule) => {
             const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
-            const iconBg = ["bg-purple-100", "bg-pink-100", "bg-red-100"]
-            const iconColor = ["text-purple-600", "text-pink-600", "text-red-600"]
-            const randomIndex = Math.floor(Math.random() * 3)
-
             return (
               <div
                 key={capsule.id}
-                className="bg-gray-50 rounded-2xl p-4 cursor-pointer"
                 onClick={() => router.push(`/capsules/${capsule.id}`)}
+                className="min-w-50  rounded-2xl bg-white border border-gray-200 overflow-hidden cursor-pointer shrink-0"
               >
-                <div className="flex gap-3">
-                  <div className={`w-12 h-12 rounded-xl overflow-hidden shrink-0 ${iconBg[randomIndex]} relative flex items-center justify-center`}>
-                    {firstImage?.contentUrl && (
-                      <img
-                        src={firstImage.contentUrl}
-                        alt={firstImage.caption || capsule.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    )}
-                    <span className={`${iconColor[randomIndex]} text-xl relative z-0`}>
-                      🎓
-                    </span>
-                  </div>
+                <div className={`h-32 relative overflow-hidden ${firstImage?.contentUrl ? '' : 'bg-linear-to-br from-pink-200 to-red-200'}`}>
+                  {firstImage?.contentUrl && (
+                    <img
+                      src={firstImage.contentUrl}
+                      alt={firstImage.caption || capsule.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.classList.add('bg-linear-to-br', 'from-pink-200', 'to-red-200');
+                      }}
+                    />
+                  )}
+                </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900 mb-0.5">{capsule.title}</h4>
-                        <p className="text-xs text-gray-400">To: Future Self</p>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500 ml-2">
-                        <span>🔒</span>
-                        <span className="font-medium">LOCKED</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <p className="text-gray-400 uppercase mb-0.5">Unlocks In</p>
-                        <p className="font-semibold text-red-500">{getTimeRemaining(capsule.unlockDate)}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gray-400 uppercase mb-0.5">Date</p>
-                        <p className="font-medium text-gray-700">
-                          {new Date(capsule.unlockDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="p-5">
+                  <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
+                  <p className="text-xs text-gray-400">Unlocks in {getTimeRemaining(capsule.unlockDate)}</p>
                 </div>
               </div>
-            )
+            );
           })}
 
-          {upcoming.length === 0 && <p className="text-sm text-gray-400">No upcoming capsules.</p>}
+          {upcoming.length === 0 && <p className="text-sm text-gray-400 px-4">No upcoming capsules.</p>}
         </div>
       </section>
 
@@ -262,7 +236,7 @@ export default function DashboardPage() {
       </button>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-100 h-16 flex justify-around items-center safe-area-bottom">
+      <nav className=" h-16 flex justify-around items-center ">
         <button className="flex flex-col items-center gap-1 text-[#FF6F61]">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />

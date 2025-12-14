@@ -9,6 +9,7 @@ export default function NewCapsulePage() {
   const [title, setTitle] = useState("");
   const [letter, setLetter] = useState("");
   const [unlockDate, setUnlockDate] = useState("");
+  const [unlockTime, setUnlockTime] = useState("00:00");
   const [recipients, setRecipients] = useState([]);
   const [newRecipient, setNewRecipient] = useState("");
   const [memories, setMemories] = useState([]);
@@ -31,12 +32,17 @@ export default function NewCapsulePage() {
     setLoading(true);
 
     try {
+      // Combine date and time into a single datetime string
+      const unlockDateTime = unlockDate && unlockTime 
+        ? `${unlockDate}T${unlockTime}:00` 
+        : unlockDate;
+
       const res = await fetch("/api/capsules", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           title, 
-          unlockDate, 
+          unlockDate: unlockDateTime, 
           letter: letter || null,
           recipients,
           memories: memories.length > 0 ? memories : undefined,
@@ -173,38 +179,64 @@ export default function NewCapsulePage() {
               </p>
             </div>
 
-            {/* Unlock Date */}
+            {/* Unlock Date & Time */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
-                Unlock Date
+                Unlock Date & Time
               </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={unlockDate}
-                  onChange={(e) => setUnlockDate(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 p-3 text-sm text-charcoal focus:border-coral-red focus:outline-none focus:ring-1 focus:ring-coral-red bg-gray-50 pr-10"
-                  placeholder="mm/dd/yyyy"
-                  required
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-coral-red"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={unlockDate}
+                    onChange={(e) => setUnlockDate(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 p-3 text-sm text-charcoal focus:border-coral-red focus:outline-none focus:ring-1 focus:ring-coral-red bg-gray-50 pr-10"
+                    placeholder="mm/dd/yyyy"
+                    required
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-coral-red"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className="relative">
+                  <input
+                    type="time"
+                    value={unlockTime}
+                    onChange={(e) => setUnlockTime(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 p-3 text-sm text-charcoal focus:border-coral-red focus:outline-none focus:ring-1 focus:ring-coral-red bg-gray-50 pr-10"
+                    required
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-coral-red"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                This capsule will remain locked until this date.
+                This capsule will unlock at the specified date and time.
               </p>
             </div>
           </div>
