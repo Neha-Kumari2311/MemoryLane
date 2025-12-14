@@ -13,6 +13,7 @@ export default function NewCapsulePage() {
   const [newRecipient, setNewRecipient] = useState("");
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const addRecipient = () => {
     if (newRecipient.trim() && newRecipient.includes("@")) {
@@ -56,15 +57,64 @@ export default function NewCapsulePage() {
     }
   };
 
-  const handleAddMemory = (type) => {
-    const url = prompt(`Enter ${type} URL:`);
-    if (url && url.trim()) {
-      const caption = prompt("Enter caption (optional):");
-      setMemories([...memories, {
-        type,
-        contentUrl: url.trim(),
-        caption: caption || null,
-      }]);
+  const handleAddMemory = async (type) => {
+    if (type === "image" || type === "audio") {
+      // Create a file input for image/audio upload
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = type === "image" ? "image/*" : "audio/*";
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+          // Upload to Cloudinary
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const uploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const uploadData = await uploadRes.json();
+
+          if (uploadRes.ok) {
+            const caption = prompt(`Enter caption (optional) for ${type}:`);
+            setMemories([
+              ...memories,
+              {
+                type: type,
+                contentUrl: uploadData.url,
+                caption: caption || null,
+              },
+            ]);
+          } else {
+            alert(uploadData.error || `Failed to upload ${type}`);
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          alert(`Failed to upload ${type}. Please try again.`);
+        } finally {
+          setUploading(false);
+        }
+      };
+      input.click();
+    } else {
+      // For other types (video), use URL prompt
+      const url = prompt(`Enter ${type} URL:`);
+      if (url && url.trim()) {
+        const caption = prompt("Enter caption (optional):");
+        setMemories([
+          ...memories,
+          {
+            type,
+            contentUrl: url.trim(),
+            caption: caption || null,
+          },
+        ]);
+      }
     }
   };
 
@@ -253,21 +303,47 @@ export default function NewCapsulePage() {
                     key={index}
                     className="flex items-center justify-between p-2 rounded-lg bg-gray-50"
                   >
-                    <div>
-                      <p className="text-sm font-medium text-charcoal">
-                        {memory.type.toUpperCase()}
-                      </p>
-                      {memory.caption && (
-                        <p className="text-xs text-gray-500">{memory.caption}</p>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {memory.type === "image" && memory.contentUrl && (
+                        <img
+                          src={memory.contentUrl}
+                          alt={memory.caption || "Memory"}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
                       )}
-                      <p className="text-xs text-gray-400 truncate max-w-xs">
-                        {memory.contentUrl}
-                      </p>
+                      {memory.type === "audio" && (
+                        <div className="w-12 h-12 bg-coral-red/10 rounded-lg flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6 text-coral-red"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-charcoal">
+                          {memory.type.toUpperCase()}
+                        </p>
+                        {memory.caption && (
+                          <p className="text-xs text-gray-500">{memory.caption}</p>
+                        )}
+                        <p className="text-xs text-gray-400 truncate max-w-xs">
+                          {memory.contentUrl}
+                        </p>
+                      </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeMemory(index)}
-                      className="text-gray-400 hover:text-red-500"
+                      className="text-gray-400 hover:text-red-500 ml-2"
                     >
                       <svg
                         className="w-4 h-4"
@@ -293,7 +369,8 @@ export default function NewCapsulePage() {
               <button
                 type="button"
                 onClick={() => handleAddMemory("audio")}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                disabled={uploading}
+                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="w-10 h-10 rounded-full bg-coral-red/10 flex items-center justify-center">
                   <svg
@@ -310,12 +387,15 @@ export default function NewCapsulePage() {
                     />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-charcoal">Audio</span>
+                <span className="text-sm font-medium text-charcoal">
+                  {uploading ? "Uploading..." : "Audio"}
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleAddMemory("image")}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                disabled={uploading}
+                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="w-10 h-10 rounded-full bg-coral-red/10 flex items-center justify-center">
                   <svg
@@ -344,7 +424,9 @@ export default function NewCapsulePage() {
                     />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-charcoal">Image</span>
+                <span className="text-sm font-medium text-charcoal">
+                  {uploading ? "Uploading..." : "Image"}
+                </span>
               </button>
             </div>
 

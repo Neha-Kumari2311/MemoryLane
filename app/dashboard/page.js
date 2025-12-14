@@ -16,6 +16,13 @@ export default function DashboardPage() {
         const data = await res.json()
 
         if (res.ok) {
+          console.log('Fetched capsules:', data.capsules);
+          data.capsules.forEach(capsule => {
+            console.log(`Capsule "${capsule.title}":`, {
+              memories: capsule.memories,
+              imageMemories: capsule.memories?.filter(m => m.type === 'image' || m.type === 'photo')
+            });
+          });
           setCapsules(data.capsules)
           setUserName(data.user?.name || data.userName || "Friend")
         } else if (res.status === 401) {
@@ -133,20 +140,41 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 scrollbar-thin">
-          {unlocked.map((capsule) => (
-            <div
-              key={capsule.id}
-              onClick={() => router.push(`/capsules/${capsule.id}`)}
-              className="min-w-50  rounded-2xl bg-white border border-gray-200 overflow-hidden cursor-pointer shrink-0"
-            >
-              <div className="h-32 bg-linear-to-br from-pink-200 to-red-200 relative"></div>
+          {unlocked.map((capsule) => {
+            const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
+            console.log('Capsule:', capsule.title, 'Memories:', capsule.memories, 'First Image:', firstImage);
+            return (
+              <div
+                key={capsule.id}
+                onClick={() => router.push(`/capsules/${capsule.id}`)}
+                className="min-w-50  rounded-2xl bg-white border border-gray-200 overflow-hidden cursor-pointer shrink-0"
+              >
+                <div className={`h-32 relative overflow-hidden ${firstImage?.contentUrl ? '' : 'bg-linear-to-br from-pink-200 to-red-200'}`}>
+                  {firstImage?.contentUrl && (
+                    <img
+                      src={firstImage.contentUrl}
+                      alt={firstImage.caption || capsule.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error('Image failed to load:', firstImage.contentUrl, e);
+                        e.target.style.display = 'none';
+                        e.target.parentElement.classList.add('bg-linear-to-br', 'from-pink-200', 'to-red-200');
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', firstImage.contentUrl);
+                      }}
+                    />
+                  )}
+                </div>
 
-              <div className="p-5">
-                <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
-                <p className="text-xs text-gray-400">Unlocked {getUnlockedTimeAgo(capsule.unlockDate)}</p>
+                <div className="p-5">
+                  <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
+                  <p className="text-xs text-gray-400">Unlocked {getUnlockedTimeAgo(capsule.unlockDate)}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {unlocked.length === 0 && <p className="text-sm text-gray-400 px-4">No unlocked capsules yet.</p>}
         </div>
@@ -158,6 +186,7 @@ export default function DashboardPage() {
 
         <div className="space-y-3">
           {upcoming.map((capsule) => {
+            const firstImage = capsule.memories?.find(m => m.type === 'image' || m.type === 'photo');
             const iconBg = ["bg-purple-100", "bg-pink-100", "bg-red-100"]
             const iconColor = ["text-purple-600", "text-pink-600", "text-red-600"]
             const randomIndex = Math.floor(Math.random() * 3)
@@ -169,10 +198,20 @@ export default function DashboardPage() {
                 onClick={() => router.push(`/capsules/${capsule.id}`)}
               >
                 <div className="flex gap-3">
-                  <div
-                    className={`w-12 h-12 ${iconBg[randomIndex]} rounded-xl flex items-center justify-center ${iconColor[randomIndex]} text-xl shrink-0`}
-                  >
-                    🎓
+                  <div className={`w-12 h-12 rounded-xl overflow-hidden shrink-0 ${iconBg[randomIndex]} relative flex items-center justify-center`}>
+                    {firstImage?.contentUrl && (
+                      <img
+                        src={firstImage.contentUrl}
+                        alt={firstImage.caption || capsule.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <span className={`${iconColor[randomIndex]} text-xl relative z-0`}>
+                      🎓
+                    </span>
                   </div>
 
                   <div className="flex-1 min-w-0">

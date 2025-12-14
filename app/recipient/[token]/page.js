@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Share2, ArrowLeft, Heart, Send, Play, MapPin, Lock, Unlock } from 'lucide-react';
+import {
+  Share2,
+  ArrowLeft,
+  Heart,
+  Send,
+  Play,
+  MapPin,
+  Lock,
+  Unlock,
+} from "lucide-react";
 
 export default function RecipientPage() {
   const { token } = useParams();
@@ -78,7 +87,9 @@ export default function RecipientPage() {
       <div className="min-h-screen bg-[#FFF8F0] dark:bg-stone-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#FF6F61] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading your memories...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading your memories...
+          </p>
         </div>
       </div>
     );
@@ -91,31 +102,42 @@ export default function RecipientPage() {
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-500 text-2xl">✕</span>
           </div>
-          <p className="text-gray-800 dark:text-white font-bold text-lg mb-2">Oops!</p>
-          <p className="text-gray-600 dark:text-gray-400">{error || "Capsule not found"}</p>
+          <p className="text-gray-800 dark:text-white font-bold text-lg mb-2">
+            Oops!
+          </p>
+          <p className="text-gray-600 dark:text-gray-400">
+            {error || "Capsule not found"}
+          </p>
         </div>
       </div>
     );
   }
 
   const isUnlocked = new Date(capsule.unlockDate) <= new Date();
-  const photos = capsule.memories?.filter(m => m.type === 'photo') || [];
-  const videos = capsule.memories?.filter(m => m.type === 'video') || [];
-  const voiceNotes = capsule.memories?.filter(m => m.type === 'voice') || [];
+  const photos =
+    capsule.memories?.filter((m) => m.type === "image" || m.type === "photo") ||
+    [];
+  const videos = capsule.memories?.filter((m) => m.type === "video") || [];
+  const voiceNotes =
+    capsule.memories?.filter((m) => m.type === "voice" || m.type === "audio") ||
+    [];
 
   return (
     <div className="min-h-screen dark:bg-stone-900 text-gray-800 dark:text-white font-sans transition-colors">
       {/* Header */}
       <div className="sticky top-0 z-50 flex items-center bg-white/90 dark:bg-stone-900/90 p-4 pb-2 justify-between border-b border-rose-200/40 dark:border-gray-800/50 backdrop-blur-md">
-        <button 
+        <button
           onClick={() => router.back()}
           className="text-gray-800 dark:text-white flex w-12 h-12 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
         >
-          <ArrowLeft size={24} />
-        </button>   <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-500">⏳</div>
-            <h1 className="text-base font-semibold text-gray-900">MemoryLane</h1>
+          <ArrowLeft size={20} />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-500">
+            ⏳
           </div>
+          <h1 className="text-base font-semibold text-gray-900">MemoryLane</h1>
+        </div>
         <div className="flex w-12 items-center justify-end">
           {/* Placeholder for symmetry */}
         </div>
@@ -124,11 +146,11 @@ export default function RecipientPage() {
       {!isUnlocked ? (
         /* Locked State */
         <div className="p-4 sm:p-6 max-w-2xl mx-auto">
-          <div 
+          <div
             className="relative flex min-h-90 flex-col gap-6 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-center p-8 text-center shadow-xl"
             style={{
               backgroundImage: `linear-gradient(135deg, rgba(255, 111, 97, 0.9) 0%, rgba(255, 111, 97, 0.7) 50%, rgba(255, 184, 178, 0.8) 100%), url(https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200)`,
-              backgroundBlendMode: 'overlay'
+              backgroundBlendMode: "overlay",
             }}
           >
             <div className="flex flex-col gap-4 z-10 w-full max-w-md">
@@ -138,9 +160,16 @@ export default function RecipientPage() {
               <h1 className="text-black text-3xl sm:text-4xl font-black tracking-tight drop-shadow-lg">
                 {capsule.title}
               </h1>
-              <p className="text-black text-lg font-semibold mb-2 drop-shadow">This capsule is locked</p>
+              <p className="text-black text-lg font-semibold mb-2 drop-shadow">
+                This capsule is locked
+              </p>
               <p className="text-black text-base drop-shadow">
-                It will unlock on {new Date(capsule.unlockDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                It will unlock on{" "}
+                {new Date(capsule.unlockDate).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </p>
             </div>
           </div>
@@ -149,14 +178,37 @@ export default function RecipientPage() {
         <>
           {/* Hero Section - Unlocked */}
           <div className="p-4 sm:p-6 max-w-2xl mx-auto">
-            <div 
-              className="relative flex min-h-70 flex-col gap-4 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-end p-6 text-center shadow-xl"
-              style={{
-                backgroundImage: `linear-gradient(135deg, rgba(255, 111, 97, 0.85) 0%, rgba(255, 111, 97, 0.6) 50%, rgba(255, 184, 178, 0.7) 100%), url(${photos.length > 0 ? photos[0].contentUrl : 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200'})`,
-                backgroundBlendMode: 'overlay'
-              }}
-            >
-              <div className="flex flex-col gap-2 z-10 w-full">
+            <div className="relative flex min-h-70 flex-col gap-4 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-end p-6 text-center shadow-xl">
+              {photos.length > 0 && photos[0].contentUrl ? (
+                <img
+                  src={photos[0].contentUrl}
+                  alt="Memory capsule cover"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="eager"
+                  onError={(e) => {
+                    console.error(
+                      "Failed to load hero image:",
+                      photos[0].contentUrl
+                    );
+                    e.target.style.display = "none";
+                  }}
+                  onLoad={() => {
+                    console.log(
+                      "Hero image loaded successfully:",
+                      photos[0].contentUrl
+                    );
+                  }}
+                />
+              ) : (
+                <div 
+                  className="absolute inset-0 bg-cover bg-center" 
+                  style={{
+                    backgroundImage: 'url(https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200)'
+                  }}
+                />
+              )}
+              <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-black/30" />
+              <div className="flex flex-col gap-2 z-10 w-full relative">
                 <div className="mx-auto mb-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/30 bg-white/20 backdrop-blur-sm">
                   <Unlock className="text-black" size={24} />
                 </div>
@@ -164,10 +216,18 @@ export default function RecipientPage() {
                   {capsule.title}
                 </h1>
                 <p className="text-black text-sm font-medium drop-shadow">
-                  Unlocked on {new Date(capsule.unlockDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  Unlocked on{" "}
+                  {new Date(capsule.unlockDate).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
-              <button className="mt-2 flex w-full max-w-65 items-center justify-center rounded-xl h-11 bg-white/95 hover:bg-white transition-colors text-[#FF6F61] text-sm font-bold shadow-lg">
+              <button 
+                onClick={handleDownload}
+                className="mt-2 flex w-full max-w-65 items-center justify-center rounded-xl h-11 bg-white/95 hover:bg-white transition-colors text-[#FF6F61] text-sm font-bold shadow-lg"
+              >
                 Save Memories
               </button>
             </div>
@@ -176,16 +236,30 @@ export default function RecipientPage() {
           {/* Letter Section */}
           {capsule.letter && (
             <div className="flex flex-col mt-4 max-w-2xl mx-auto">
-              <h2 className="text-xl font-bold tracking-tight px-4 pb-3">A Letter for You</h2>
+              <h2 className="text-xl font-bold tracking-tight px-4 pb-3">
+                A Letter for You
+              </h2>
               <div className="px-4">
                 <div className="bg-white dark:bg-stone-800 p-5 rounded-xl shadow-sm border border-stone-200 dark:border-gray-800">
                   <div className="flex items-center gap-2.5 mb-3">
                     <div className="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center text-rose-500">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
                       </svg>
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#FF6F61] dark:text-gray-400">Personal Note</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#FF6F61] dark:text-gray-400">
+                      Personal Note
+                    </span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-200 text-base leading-relaxed whitespace-pre-wrap">
                     {capsule.letter}
@@ -197,30 +271,57 @@ export default function RecipientPage() {
 
           {/* Photos Section */}
           {photos.length > 0 && (
-            <div className="flex flex-col mt-6">
+            <div className="flex flex-col mt-6 max-w-2xl mx-auto px-4">
               <div className="flex items-center justify-between px-4 pb-3">
                 <h2 className="text-xl font-bold tracking-tight">Photos</h2>
                 {photos.length > 3 && (
-                  <button className="text-[#FF6F61] text-sm font-semibold active:opacity-70">See All</button>
+                  <button className="text-[#FF6F61] text-sm font-semibold active:opacity-70">
+                    See All
+                  </button>
                 )}
               </div>
-              <div className="flex overflow-x-auto gap-3 px-4 pb-4 snap-x" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div
+                className="flex overflow-x-auto gap-3 px-4 pb-4 snap-x"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
                 {photos.map((photo) => (
-                  <a 
+                  <a
                     key={photo.id}
                     href={photo.contentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 snap-center w-60 h-75 rounded-xl bg-gray-800 overflow-hidden relative group"
+                    className="shrink-0 snap-center w-95 h-75 rounded-xl bg-gray-800 overflow-hidden relative group"
                   >
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                      style={{ backgroundImage: `url(${photo.contentUrl})` }}
-                    />
+                    {photo.contentUrl ? (
+                      <img
+                        src={photo.contentUrl}
+                        alt={photo.caption || "Memory photo"}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        onError={(e) => {
+                          console.error(
+                            "Failed to load image:",
+                            photo.contentUrl
+                          );
+                          e.target.style.display = "none";
+                          e.target.parentElement.classList.add("bg-gray-800");
+                        }}
+                        onLoad={() => {
+                          console.log(
+                            "Image loaded successfully:",
+                            photo.contentUrl
+                          );
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gray-800" />
+                    )}
                     <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
                     {photo.caption && (
-                      <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <p className="font-semibold text-base mb-1 line-clamp-2">{photo.caption}</p>
+                      <div className="absolute bottom-3 left-3 right-3 text-white z-10">
+                        <p className="font-semibold text-base mb-1 line-clamp-2">
+                          {photo.caption}
+                        </p>
                       </div>
                     )}
                   </a>
@@ -234,7 +335,9 @@ export default function RecipientPage() {
             <div className="flex flex-col mt-6 px-4 gap-4 max-w-2xl mx-auto">
               {videos.map((video) => (
                 <div key={video.id}>
-                  <h2 className="text-xl font-bold tracking-tight pb-3">Video Message</h2>
+                  <h2 className="text-xl font-bold tracking-tight pb-3">
+                    Video Message
+                  </h2>
                   <a
                     href={video.contentUrl}
                     target="_blank"
@@ -242,8 +345,8 @@ export default function RecipientPage() {
                     className="relative w-full aspect-video rounded-xl bg-gray-800 overflow-hidden shadow-sm group cursor-pointer block"
                     style={{
                       backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${video.contentUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -267,7 +370,9 @@ export default function RecipientPage() {
             <div className="mt-6 px-4 gap-4 max-w-2xl mx-auto">
               {voiceNotes.map((voice) => (
                 <div key={voice.id}>
-                  <h2 className="text-xl font-bold tracking-tight pb-3">Voice Note</h2>
+                  <h2 className="text-xl font-bold tracking-tight pb-3">
+                    Voice Note
+                  </h2>
                   <div className="bg-white dark:bg-stone-800 p-4 rounded-xl flex items-center gap-3 shadow-sm border border-stone-200 dark:border-gray-800">
                     <a
                       href={voice.contentUrl}
@@ -279,16 +384,25 @@ export default function RecipientPage() {
                     </a>
                     <div className="flex flex-1 flex-col gap-1 overflow-hidden">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold truncate">{voice.caption || 'Voice Note'}</span>
+                        <span className="text-sm font-semibold truncate">
+                          {voice.caption || "Voice Note"}
+                        </span>
                       </div>
                       <div className="flex items-end gap-0.5 h-5 w-full opacity-80">
-                        {[40, 70, 100, 60, 30, 80, 50, 40, 70, 30, 60, 50, 40, 20, 40, 60, 40, 20].map((height, i) => (
-                          <div 
+                        {[
+                          40, 70, 100, 60, 30, 80, 50, 40, 70, 30, 60, 50, 40,
+                          20, 40, 60, 40, 20,
+                        ].map((height, i) => (
+                          <div
                             key={i}
-                            className={`w-1 rounded-full ${i < 4 ? 'bg-[#FF6F61] animate-pulse' : 'bg-rose-200 dark:bg-gray-600'}`}
-                            style={{ 
+                            className={`w-1 rounded-full ${
+                              i < 4
+                                ? "bg-[#FF6F61] animate-pulse"
+                                : "bg-rose-200 dark:bg-gray-600"
+                            }`}
+                            style={{
                               height: `${height}%`,
-                              animationDelay: i < 4 ? `${i * 50}ms` : '0ms'
+                              animationDelay: i < 4 ? `${i * 50}ms` : "0ms",
                             }}
                           />
                         ))}
@@ -301,19 +415,24 @@ export default function RecipientPage() {
           )}
 
           {/* Empty State */}
-          {(!capsule.letter && photos.length === 0 && videos.length === 0 && voiceNotes.length === 0) && (
-            <div className="px-4 py-12 max-w-2xl mx-auto">
-              <div className="bg-white dark:bg-stone-800 rounded-xl p-8 text-center border border-stone-200 dark:border-gray-800">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-gray-400 text-2xl">📦</span>
+          {!capsule.letter &&
+            photos.length === 0 &&
+            videos.length === 0 &&
+            voiceNotes.length === 0 && (
+              <div className="px-4 py-12 max-w-2xl mx-auto">
+                <div className="bg-white dark:bg-stone-800 rounded-xl p-8 text-center border border-stone-200 dark:border-gray-800">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-gray-400 text-2xl">📦</span>
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    This capsule is unlocked but has no content yet.
+                  </p>
                 </div>
-                <p className="text-gray-500 dark:text-gray-400">This capsule is unlocked but has no content yet.</p>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Bottom Actions */}
-          <div className="fixed bottom-0 left-0 w-full p-4 bg-linear-to-t from-[#FFF8F0] via-[#FFF8F0]/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent z-40 pointer-events-none pb-6">
+          <div className=" bottom-0 left-0 w-full p-4 bg-linear-to-t from-[#FFF8F0] via-[#FFF8F0]/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent z-40 pointer-events-none pb-6">
             <div className="pointer-events-auto flex gap-2.5 max-w-2xl mx-auto">
               {/* Download Memories */}
               <button
@@ -340,7 +459,6 @@ export default function RecipientPage() {
             </div>
           </div>
 
-          <div className="h-20" />
         </>
       )}
 

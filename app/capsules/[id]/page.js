@@ -10,6 +10,7 @@ export default function CapsuleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [newMemory, setNewMemory] = useState({ type: 'text', contentUrl: '', caption: '' });
   const [newRecipient, setNewRecipient] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchCapsule = async () => {
@@ -29,7 +30,77 @@ export default function CapsuleDetailPage() {
     fetchCapsule();
   }, [id]);
 
+  const handleFileUpload = async (file, type) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+
+      if (uploadRes.ok) {
+        return uploadData.url;
+      } else {
+        alert(uploadData.error || `Failed to upload ${type}`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert(`Failed to upload ${type}. Please try again.`);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddMemory = async () => {
+    let contentUrl = newMemory.contentUrl;
+
+    // If image or audio type and no URL provided, check for file input
+    if ((newMemory.type === 'image' || newMemory.type === 'audio') && !contentUrl) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = newMemory.type === "image" ? "image/*" : "audio/*";
+      
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const uploadedUrl = await handleFileUpload(file, newMemory.type);
+        if (uploadedUrl) {
+          // Update the memory with the uploaded URL and submit
+          const memoryToAdd = {
+            type: newMemory.type,
+            contentUrl: uploadedUrl,
+            caption: newMemory.caption || null,
+          };
+
+          const res = await fetch(`/api/capsules/${id}/memories`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(memoryToAdd),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            alert("Memory added!");
+            location.reload();
+          } else {
+            alert(data.error || "Failed to add memory");
+          }
+        }
+      };
+      input.click();
+      return;
+    }
+
+    // For URL-based memories or if URL is already provided
     const res = await fetch(`/api/capsules/${id}/memories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -234,14 +305,33 @@ export default function CapsuleDetailPage() {
             </div>
             
             <div>
-              <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Content URL (optional)</label>
-              <input
-                type="text"
-                value={newMemory.contentUrl}
-                onChange={(e) => setNewMemory({...newMemory, contentUrl: e.target.value})}
-                className="w-full rounded-xl border border-gray-600 bg-[#252b47] px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF6F61]"
-                placeholder="https://example.com/file.jpg"
-              />
+              <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wide">
+                {newMemory.type === 'image' || newMemory.type === 'audio' 
+                  ? 'Upload File or Enter URL (optional)' 
+                  : 'Content URL (optional)'}
+              </label>
+              {(newMemory.type === 'image' || newMemory.type === 'audio') ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={newMemory.contentUrl}
+                    onChange={(e) => setNewMemory({...newMemory, contentUrl: e.target.value})}
+                    className="w-full rounded-xl border border-gray-600 bg-[#252b47] px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF6F61]"
+                    placeholder={`Or enter ${newMemory.type} URL`}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Leave URL empty to upload a file when saving
+                  </p>
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={newMemory.contentUrl}
+                  onChange={(e) => setNewMemory({...newMemory, contentUrl: e.target.value})}
+                  className="w-full rounded-xl border border-gray-600 bg-[#252b47] px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF6F61]"
+                  placeholder="https://example.com/file.jpg"
+                />
+              )}
             </div>
             
             <div>
@@ -257,9 +347,10 @@ export default function CapsuleDetailPage() {
             
             <button
               onClick={handleAddMemory}
-              className="w-full rounded-xl bg-[#FF6F61] px-4 py-3.5 text-white text-sm font-semibold shadow-lg hover:bg-[#ff5a4d] transition-all active:scale-98"
+              disabled={uploading}
+              className="w-full rounded-xl bg-[#FF6F61] px-4 py-3.5 text-white text-sm font-semibold shadow-lg hover:bg-[#ff5a4d] transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save Memory
+              {uploading ? "Uploading..." : "Save Memory"}
             </button>
           </div>
         </section>
