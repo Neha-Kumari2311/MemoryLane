@@ -20,6 +20,8 @@ model Capsule {
   id         Int         @id @default(autoincrement())
   title      String
   unlockDate DateTime
+  unlocked   Boolean    @default(false)
+  letter     String?
   creatorId  Int
   creator    User        @relation(fields: [creatorId], references: [id])
   memories   Memory[]
@@ -29,7 +31,7 @@ model Capsule {
 model Memory {
   id         Int     @id @default(autoincrement())
   type       String
-  contentUrl String
+  contentUrl String?
   caption    String?
   capsuleId  Int
   capsule    Capsule @relation(fields: [capsuleId], references: [id])
