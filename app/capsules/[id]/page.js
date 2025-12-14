@@ -126,7 +126,7 @@ export default function CapsuleDetailPage() {
         <section className="px-6 py-4 bg-[#1a1f3a]">
           <div className="flex justify-center gap-2">
             {capsule.recipients.slice(0, 3).map((recipient, idx) => (
-              <div key={recipient.id} className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-semibold text-sm border-2 border-[#1a1f3a]">
+              <div key={recipient.id} className="w-12 h-12 rounded-full bg-linear-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-semibold text-sm border-2 border-[#1a1f3a]">
                 {recipient.email.charAt(0).toUpperCase()}
               </div>
             ))}
@@ -166,7 +166,7 @@ export default function CapsuleDetailPage() {
                 <div key={memory.id} className="bg-[#252b47] rounded-xl overflow-hidden">
                   {/* Memory Image/Content */}
                   {memory.type === 'image' && (
-                    <div className="relative h-56 bg-gradient-to-br from-orange-300 to-pink-400">
+                    <div className="relative h-56 bg-linear-to-br from-orange-300 to-pink-400">
                       <img 
                         src={memory.contentUrl} 
                         alt={memory.caption || 'Memory'} 
@@ -178,14 +178,14 @@ export default function CapsuleDetailPage() {
                     </div>
                   )}
                   {memory.type === 'video' && (
-                    <div className="relative h-56 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                    <div className="relative h-56 bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                       <svg className="w-16 h-16 text-white/40" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                       </svg>
                     </div>
                   )}
                   {memory.type === 'audio' && (
-                    <div className="relative h-40 bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                    <div className="relative h-40 bg-linear-to-br from-purple-400 to-pink-500 flex items-center justify-center">
                       <svg className="w-14 h-14 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                       </svg>

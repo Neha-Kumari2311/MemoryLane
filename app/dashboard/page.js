@@ -137,9 +137,9 @@ export default function DashboardPage() {
             <div
               key={capsule.id}
               onClick={() => router.push(`/capsules/${capsule.id}`)}
-              className="min-w-[200px]  rounded-2xl bg-white border border-gray-200 overflow-hidden cursor-pointer flex-shrink-0"
+              className="min-w-50  rounded-2xl bg-white border border-gray-200 overflow-hidden cursor-pointer shrink-0"
             >
-              <div className="h-32 bg-gradient-to-br from-pink-200 to-red-200 relative"></div>
+              <div className="h-32 bg-linear-to-br from-pink-200 to-red-200 relative"></div>
 
               <div className="p-5">
                 <h4 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-1">{capsule.title}</h4>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
               >
                 <div className="flex gap-3">
                   <div
-                    className={`w-12 h-12 ${iconBg[randomIndex]} rounded-xl flex items-center justify-center ${iconColor[randomIndex]} text-xl flex-shrink-0`}
+                    className={`w-12 h-12 ${iconBg[randomIndex]} rounded-xl flex items-center justify-center ${iconColor[randomIndex]} text-xl shrink-0`}
                   >
                     🎓
                   </div>

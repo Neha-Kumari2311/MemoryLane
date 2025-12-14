@@ -125,7 +125,7 @@ export default function RecipientPage() {
         /* Locked State */
         <div className="p-4 sm:p-6 max-w-2xl mx-auto">
           <div 
-            className="relative flex min-h-[360px] flex-col gap-6 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-center p-8 text-center shadow-xl"
+            className="relative flex min-h-90 flex-col gap-6 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-center p-8 text-center shadow-xl"
             style={{
               backgroundImage: `linear-gradient(135deg, rgba(255, 111, 97, 0.9) 0%, rgba(255, 111, 97, 0.7) 50%, rgba(255, 184, 178, 0.8) 100%), url(https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200)`,
               backgroundBlendMode: 'overlay'
@@ -150,7 +150,7 @@ export default function RecipientPage() {
           {/* Hero Section - Unlocked */}
           <div className="p-4 sm:p-6 max-w-2xl mx-auto">
             <div 
-              className="relative flex min-h-[280px] flex-col gap-4 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-end p-6 text-center shadow-xl"
+              className="relative flex min-h-70 flex-col gap-4 overflow-hidden rounded-2xl bg-cover bg-center items-center justify-end p-6 text-center shadow-xl"
               style={{
                 backgroundImage: `linear-gradient(135deg, rgba(255, 111, 97, 0.85) 0%, rgba(255, 111, 97, 0.6) 50%, rgba(255, 184, 178, 0.7) 100%), url(${photos.length > 0 ? photos[0].contentUrl : 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200'})`,
                 backgroundBlendMode: 'overlay'
@@ -167,7 +167,7 @@ export default function RecipientPage() {
                   Unlocked on {new Date(capsule.unlockDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
-              <button className="mt-2 flex w-full max-w-[260px] items-center justify-center rounded-xl h-11 bg-white/95 hover:bg-white transition-colors text-[#FF6F61] text-sm font-bold shadow-lg">
+              <button className="mt-2 flex w-full max-w-65 items-center justify-center rounded-xl h-11 bg-white/95 hover:bg-white transition-colors text-[#FF6F61] text-sm font-bold shadow-lg">
                 Save Memories
               </button>
             </div>
@@ -211,13 +211,13 @@ export default function RecipientPage() {
                     href={photo.contentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 snap-center w-[240px] h-[300px] rounded-xl bg-gray-800 overflow-hidden relative group"
+                    className="shrink-0 snap-center w-60 h-75 rounded-xl bg-gray-800 overflow-hidden relative group"
                   >
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                       style={{ backgroundImage: `url(${photo.contentUrl})` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
                     {photo.caption && (
                       <div className="absolute bottom-3 left-3 right-3 text-white">
                         <p className="font-semibold text-base mb-1 line-clamp-2">{photo.caption}</p>
@@ -281,7 +281,7 @@ export default function RecipientPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold truncate">{voice.caption || 'Voice Note'}</span>
                       </div>
-                      <div className="flex items-end gap-[2px] h-5 w-full opacity-80">
+                      <div className="flex items-end gap-0.5 h-5 w-full opacity-80">
                         {[40, 70, 100, 60, 30, 80, 50, 40, 70, 30, 60, 50, 40, 20, 40, 60, 40, 20].map((height, i) => (
                           <div 
                             key={i}
@@ -313,7 +313,7 @@ export default function RecipientPage() {
           )}
 
           {/* Bottom Actions */}
-          <div className="fixed bottom-0 left-0 w-full p-4 bg-gradient-to-t from-[#FFF8F0] via-[#FFF8F0]/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent z-40 pointer-events-none pb-6">
+          <div className="fixed bottom-0 left-0 w-full p-4 bg-linear-to-t from-[#FFF8F0] via-[#FFF8F0]/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent z-40 pointer-events-none pb-6">
             <div className="pointer-events-auto flex gap-2.5 max-w-2xl mx-auto">
               {/* Download Memories */}
               <button
