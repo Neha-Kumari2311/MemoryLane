@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
-import { sendEmail, isEmailConfigured } from "@/lib/email";
+import { sendEmail, isEmailConfigured, getEmailStatus } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -17,7 +17,9 @@ export async function GET() {
         ]
       },
       include: { 
-        memories: true, 
+        memories: {
+          orderBy: { createdAt: 'asc' }
+        },
         recipients: true,
         collaborators: {
           include: {
@@ -47,6 +49,7 @@ export async function GET() {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.error("❌ Failed to load capsules:", error);
     return NextResponse.json({ error: "Failed to load capsules" }, { status: 500 });
   }
 }
@@ -62,6 +65,8 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+
+    console.log(`📦 Creating new capsule "${title}" by user ${user.id}`);
 
     // Create capsule with letter and theme
     const capsule = await prisma.capsule.create({
@@ -97,12 +102,32 @@ export async function POST(req) {
       },
     });
 
+    console.log(`✅ Capsule ${capsule.id} created successfully`);
+    console.log(`📧 Email configuration status:`, getEmailStatus());
+
     // Send emails to recipients if configured
-    if (capsule.recipients && capsule.recipients.length > 0 && isEmailConfigured()) {
+    if (capsule.recipients && capsule.recipients.length > 0) {
+      console.log(`📨 Attempting to send emails to ${capsule.recipients.length} recipients`);
+      
+      if (!isEmailConfigured()) {
+        console.error("❌ Email service not configured!");
+        console.error("Configuration status:", getEmailStatus());
+        // Still return success for capsule creation, but warn about emails
+        return NextResponse.json({ 
+          message: "Capsule created but email service not configured", 
+          capsule,
+          emailWarning: "Emails could not be sent - service not configured"
+        });
+      }
+
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      console.log(`🌐 Base URL: ${baseUrl}`);
+
+      const emailResults = [];
 
       for (const recipient of capsule.recipients) {
         const link = `${baseUrl}/recipient/${recipient.token}`;
+        let emailSent = false;
         
         try {
           const creatorName = capsule.creator?.name || "Someone";
@@ -113,7 +138,10 @@ export async function POST(req) {
             day: 'numeric' 
           });
 
-          await sendEmail({
+          console.log(`📧 Sending email to: ${recipient.email}`);
+          console.log(`📧 From: ${process.env.RESEND_FROM_EMAIL}`);
+
+          const emailResult = await sendEmail({
             to: recipient.email,
             subject: `${creatorName} shared a MemoryLane capsule with you`,
             html: `
@@ -149,25 +177,81 @@ export async function POST(req) {
               </div>
             `,
           });
+
+          // Check if email was actually sent successfully
+          if (emailResult && emailResult.success) {
+            emailSent = true;
+            console.log(`✅ Email sent successfully to ${recipient.email}`);
+            emailResults.push({ 
+              email: recipient.email, 
+              success: true, 
+              service: emailResult.service 
+            });
+          } else {
+            console.warn(`⚠️ Email sending returned but success was false for ${recipient.email}`);
+            emailResults.push({ 
+              email: recipient.email, 
+              success: false, 
+              error: "Email sending returned unsuccessful status" 
+            });
+          }
+        } catch (emailError) {
+          console.error(`❌ Failed to send email to ${recipient.email}`);
+          console.error("Error message:", emailError.message);
           
-          // Mark recipient as notified
+          emailResults.push({ 
+            email: recipient.email, 
+            success: false, 
+            error: emailError.message 
+          });
+        }
+        
+        // Update database ONLY if email was actually sent
+        try {
           await prisma.recipient.update({
             where: { id: recipient.id },
-            data: { notified: true },
+            data: { notified: emailSent },
           });
-        } catch (emailError) {
-          console.error(`Failed to send email to ${recipient.email}:`, emailError);
-          // Continue even if email fails
+          
+          if (emailSent) {
+            console.log(`✅ Marked ${recipient.email} as notified in database`);
+          } else {
+            console.log(`❌ Marked ${recipient.email} as NOT notified in database (email failed)`);
+          }
+        } catch (dbError) {
+          console.error(`❌ Failed to update notification status for ${recipient.email}:`, dbError);
         }
       }
+
+      console.log("📊 Email sending summary:", {
+        total: emailResults.length,
+        successful: emailResults.filter(r => r.success).length,
+        failed: emailResults.filter(r => !r.success).length,
+      });
+
+      // Return success with email status
+      return NextResponse.json({ 
+        message: "Capsule created", 
+        capsule,
+        emailStatus: {
+          sent: emailResults.filter(r => r.success).length,
+          failed: emailResults.filter(r => !r.success).length,
+          details: emailResults
+        }
+      });
     }
 
+    console.log(`✅ Capsule created with no recipients`);
     return NextResponse.json({ message: "Capsule created", capsule });
   } catch (error) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("Capsule creation error:", error);
-    return NextResponse.json({ error: "Failed to create capsule" }, { status: 500 });
+    console.error("❌ Capsule creation error:", error);
+    console.error("Error details:", error.message);
+    return NextResponse.json({ 
+      error: "Failed to create capsule",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
 }
