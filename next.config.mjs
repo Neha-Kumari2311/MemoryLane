@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable production optimizations
   reactStrictMode: true,
-  
-  // Headers for security
+
   async headers() {
     return [
       {
@@ -30,7 +28,6 @@ const nextConfig = {
     ];
   },
 
-  // Optimize images
   images: {
     remotePatterns: [
       {
@@ -40,15 +37,7 @@ const nextConfig = {
     ],
   },
 
-  // Environment variables validation
-  env: {
-    NODE_ENV: process.env.NODE_ENV,
-  },
-
-  // Compression
   compress: true,
-
-  // Generate ETags for cache validation
   generateEtags: true,
 };
 

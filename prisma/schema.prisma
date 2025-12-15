@@ -4,8 +4,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // Use this for migrations in serverless environments
-  directUrl = env("DATABASE_URL_DIRECT")
 }
 
 model User {

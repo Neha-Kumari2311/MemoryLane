@@ -110,7 +110,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-cream-bg text-[#3E3E3E] font-sans " style={{ fontFamily: "sans-serif" }}>
+    <div className="min-h-screen w-full bg-cream-bg text-[#3E3E3E] font-sans pb-16 " style={{ fontFamily: "sans-serif" }}>
       {/* Header */}
       <header className="border-b bg-white">
         <div className="flex items-center justify-center px-4 py-3 relative">
@@ -186,7 +186,7 @@ export default function DashboardPage() {
       )}
 
       {/* Ready to View */}
-      <section className="mb-6">
+      <section className="mb-20">
         <div className="flex justify-between items-center px-4 mb-3">
           <h3 className="text-base font-semibold text-gray-900">Ready to View</h3>
         </div>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
 </button>
 
       {/* Bottom Nav */}
-      <nav className="h-16 flex justify-around items-center bg-white border-t border-gray-100">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 flex justify-around items-center bg-white border-t border-gray-100 z-40">
         <button className="flex flex-col items-center gap-1 text-[#FF6F61]">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />

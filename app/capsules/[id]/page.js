@@ -232,18 +232,6 @@ export default function CapsuleDetailPage() {
       {/* Recipients */}
       {capsule.recipients && capsule.recipients.length > 0 && (
         <section className="px-6 py-4 bg-[#1a1f3a]">
-          <div className="flex justify-center gap-2">
-            {capsule.recipients.slice(0, 3).map((recipient, idx) => (
-              <div key={recipient.id} className="w-12 h-12 rounded-full bg-linear-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-semibold text-sm border-2 border-[#1a1f3a]">
-                {recipient.email.charAt(0).toUpperCase()}
-              </div>
-            ))}
-            {capsule.recipients.length > 3 && (
-              <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs border-2 border-[#1a1f3a]">
-                +{capsule.recipients.length - 3}
-              </div>
-            )}
-          </div>
         </section>
       )}
 
