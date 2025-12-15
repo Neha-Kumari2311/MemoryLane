@@ -49,6 +49,15 @@ MemoryLane is a web application that lets users create digital time capsules con
 - Authentication is handled through custom API routes
 - No third-party auth providers are used
 
+## Test Credentials 
+ - Email           | Password |
+ - test1@gmail.com | test123  |
+ - test2@gmail.com | test234  |
+ - test3@gmail.com | test345  |
+
+ ## Deployed Link
+-  https://memory-lane-h0mk838f6-neha-kumaris-projects-68c9fc76.vercel.app/login
+
 ## ⚙️ Installation & Setup
 
  **1️. Clone the repository**
@@ -69,6 +78,10 @@ MemoryLane is a web application that lets users create digital time capsules con
 
 **5️. Run the development server**
 - npm run dev
+
+## 📸 Screenshots
+- available at ./screenshots
+
 
 ## 🔮 Future Enhancements
 
