@@ -31,6 +31,7 @@ export default function DashboardPage() {
     fetchCapsules()
   }, [router])
 
+  // Get current time for each render
   const now = new Date()
   const upcoming = capsules.filter((c) => new Date(c.unlockDate) > now)
   const unlocked = capsules.filter((c) => new Date(c.unlockDate) <= now)
@@ -48,9 +49,16 @@ export default function DashboardPage() {
     : unlocked
 
   const getTimeRemaining = (unlockDate) => {
-    // Calculate the difference between unlock date/time and current time
-    // Both dates are in the user's local timezone, so the calculation is accurate
-    const diff = new Date(unlockDate) - now
+    // FIXED: Create a fresh 'now' for accurate calculation
+    const currentTime = new Date()
+    const unlockTime = new Date(unlockDate)
+    const diff = unlockTime - currentTime
+    
+    // If already unlocked, return nothing
+    if (diff <= 0) {
+      return "Unlocked"
+    }
+    
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const months = Math.floor(days / 30)
     const years = Math.floor(months / 12)
@@ -64,7 +72,6 @@ export default function DashboardPage() {
       return `${days} Day${days > 1 ? "s" : ""}`
     } else {
       // If it's today, show hours until the exact unlock time
-      // Example: If unlock is at 2:30 PM and it's 10:30 AM, shows "4 Hours"
       const hours = Math.floor(diff / (1000 * 60 * 60))
       if (hours > 0) {
         return `${hours} Hour${hours > 1 ? "s" : ""}`
