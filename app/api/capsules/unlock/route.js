@@ -2,8 +2,31 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail, isEmailConfigured } from "@/lib/email";
 
-export async function GET() {
+// Verify cron request is legitimate (Vercel sets x-vercel-cron header)
+function verifyCronToken(request) {
+  // Check for Vercel's cron secret (set in vercel.json or environment)
+  const cronSecret = process.env.CRON_SECRET;
+  const vercelCronHeader = request.headers.get("x-vercel-cron");
+
+  // If CRON_SECRET is set, verify it
+  if (cronSecret) {
+    return vercelCronHeader === "true";
+  }
+
+  // In development, allow the request (only accessible locally)
+  return process.env.NODE_ENV !== "production";
+}
+
+export async function GET(request) {
   try {
+    // Security: Verify this is a legitimate cron request
+    if (!verifyCronToken(request)) {
+      return NextResponse.json(
+        { error: "Unauthorized - Invalid cron request" },
+        { status: 401 }
+      );
+    }
+
     const now = new Date();
 
     // Find capsules that should unlock today and are not yet unlocked
